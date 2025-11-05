@@ -217,9 +217,6 @@ namespace LojaTechFuture
                         {
                             WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
                             WriteLine($" Nome:{nomes[i]}");
-                            WriteLine($" Segmento:{segmentos[i]}");
-                            WriteLine($" Quantidade:{quantidades[i]}");
-                            WriteLine($" Preço Unitário:R${precos[i]:F2}");
                             WriteLine("=====================================");
                         }
                         Write("Digite o nome do produto que deseja excluir:");
@@ -255,7 +252,7 @@ namespace LojaTechFuture
                     case "6":// Atualizar produtos
                         Clear();
                         WriteLine("======================================");
-                        WriteLine("|         Atualizar Produto          |");
+                        WriteLine("|              Produtos              |");
                         WriteLine("======================================");
                         for (int i = 0; i < nomes.Count; i++)
                         {
@@ -266,6 +263,10 @@ namespace LojaTechFuture
                             WriteLine($" Preço Unitário:R${precos[i]:F2}");
                             WriteLine("=====================================");
                         }
+                        WriteLine();
+                        WriteLine("======================================");
+                        WriteLine("|         Atualizar Produtos         |");
+                        WriteLine("======================================");
                         Write("Digite o nome do produto que deseja atualizar:");
                         string nomeParaAtualizar = ReadLine();
                         int indiceParaAtualizar = -1;//começar com um índice que significa não encontrado
@@ -333,6 +334,6 @@ namespace LojaTechFuture
             }
         }
     }
-
 }
+
 
