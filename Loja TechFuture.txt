@@ -1,4 +1,4 @@
-Loja tecFuture teste 5
+Loja tecFuture 
 
 using System;
 using System.Collections.Generic;
@@ -333,4 +333,5 @@ namespace LojaTechFuture
             }
         }
     }
+
 }
