@@ -1,0 +1,336 @@
+Loja tecFuture teste 5
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Console;
+using System.IO;
+
+namespace LojaTechFuture
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            const string arquivo = "estoque.csv";  // Nome do arquivo para salvar os dados
+            List<string> nomes = new List<string>();// Lista para armazenar os nomes dos produtos
+            List<int> quantidades = new List<int>();// Lista para armazenar as quantidades dos produtos
+            List<double> precos = new List<double>();// Lista para armazenar os preços dos produtos
+            List<string> segmentos = new List<string>();// Lista para armazenar os segmentos dos produtos
+
+            if (File.Exists(arquivo))// Verifica se o arquivo existe
+            {
+                // Lê todas as linhas do arquivo
+                string[] linhas = File.ReadAllLines(arquivo);
+
+                foreach (string linha in linhas)
+                {
+                    // Separa a linha em partes usando o '/' como delimitador
+                    string[] partes = linha.Split('/');
+
+                    // Verifica se a linha tem o formato esperado (4 partes)
+                    if (partes.Length == 4)
+                    {
+                        nomes.Add(partes[0]); // Parte 0 é o nome
+                        segmentos.Add(partes[1]); // Parte 1 é o segmento
+                        quantidades.Add(int.Parse(partes[2])); // Parte 2 é a quantidade
+                        precos.Add(double.Parse(partes[3])); // Parte 3 é o preço
+                    }
+                }
+                WriteLine("=======================================");
+                WriteLine("|    Bem vindo a Loja TechFuture!     |");
+                WriteLine("=======================================");
+                WriteLine();
+                WriteLine("Dados carregados com sucesso do arquivo 'estoque.csv'!");
+                WriteLine("Pressione qualquer tecla para ir para o MENU...");
+                ReadKey();
+            }
+
+            bool sair = false;// Variável para controlar o loop principal
+            
+
+            while (!sair)// Loop principal do programa
+            {
+                Clear();
+                WriteLine("|=====================================|");
+                WriteLine("|   Sistema de Estoque TechFuture     |");
+                WriteLine("|=====================================|");
+                WriteLine("|1 - Cadastrar novo produto           |");
+                WriteLine("|2 - Listar todos os produtos         |");
+                WriteLine("|3 - Buscar produto por Nome          |");
+                WriteLine("|4 - Calcular valor total do estoque  |");
+                WriteLine("|5 - Excluir produto do estoque       |");
+                WriteLine("|6 - Atualizar produtos               |");
+                WriteLine("|7 - Salvar                           |");
+                WriteLine("|8 - Sair                             |");
+                WriteLine("|=====================================|");
+                Write(" Escolha uma opção:");
+
+                string opcao = ReadLine();// Lê a opção do usuário
+
+                switch (opcao)// Switch para tratar as opções do menu
+                {
+                    case "1":// Cadastrar novo produto
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|      Cadastro de Novo Produto      |");
+                        WriteLine("======================================");
+                        Write(" Nome do Produto:");
+                        string nome = ReadLine();
+                        // inicio da verificação de existência do produto 
+                        if (nomes.Any(n => n.ToLower() == nome.ToLower()))// Usamos .Any() do LINQ para verificar se qualquer item na lista n
+                        {
+                            // Se entrou aqui o produto já existe
+                            WriteLine();
+                            WriteLine("=========================================================================");
+                            WriteLine($" AVISO: O produto '{nome}' já está cadastrado no estoque.");
+                            WriteLine("=========================================================================");
+                            WriteLine();
+                        }
+                        else
+                        {
+                            // Se não existe, pede o resto das informações
+                            Write(" Segmento(Ex:Perifericos,Memoria,Placa mãe):");
+                            string segmento = ReadLine();
+                            Write(" Quantidade em Estoque:");
+                            int quantidade = int.Parse(ReadLine());
+                            Write(" Preço Unitário:");
+                            double preco = double.Parse(ReadLine());
+
+                            // Adiciona nas listas
+                            nomes.Add(nome);
+                            quantidades.Add(quantidade);
+                            precos.Add(preco);
+                            segmentos.Add(segmento);
+                            WriteLine("Produto cadastrado com sucesso!");
+                        }
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "2":// Listar todos os produtos
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|        Lista de Produtos           |");
+                        WriteLine("======================================");
+
+                        // verifica se a lista de nomes está vazia
+                        if (nomes.Count == 0)
+                        {
+                            WriteLine("|  Nenhum produto cadastrado ainda!  |");
+                            WriteLine("======================================");
+                        }
+                        else // se houver produtos cadastrados
+                        {
+                            // Loop normal começando de i = 0
+                            for (int i = 0; i < nomes.Count; i++)
+                            {
+                                WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
+                                WriteLine($" Nome:{nomes[i]}");
+                                WriteLine($" Segmento:{segmentos[i]}");
+                                WriteLine($" Quantidade:{quantidades[i]}");
+                                WriteLine($" Preço Unitário:R${precos[i]:F2}");
+                                WriteLine("=====================================");
+                            }
+                        }
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "3":// Buscar produto por nome
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|          Procurar Produto          |");
+                        WriteLine("======================================");
+                        Write("Digite o produto que deseja procurar:");
+                        string nomeParaProcurar = ReadLine();
+                        int procurar = -1;//começar com um índice que significa não encontrado
+
+                        for (int i = 0; i < nomes.Count; i++)// Loop para percorrer cada nome na lista
+                        {
+                            // Compara a versão minúscula do nome na lista com a versão minúscula do que foi digitado
+                            if (nomes[i].ToLower() == nomeParaProcurar.ToLower())
+                            {
+                                procurar = i; // Se encontrou, guarda o índice
+                                break;     // E para o loop, pois já achamos o produto
+                            }
+                        }
+
+                        if (procurar != -1) // Se o índice for diferente de -1 significa que achou
+                        {
+                            WriteLine();
+                            WriteLine("======================================");
+                            WriteLine("|       Produto encontrado           |");
+                            WriteLine("======================================");
+                            WriteLine($" Nome:{nomes[procurar]}");// Exibe o nome
+                            WriteLine($" Segmento:{segmentos[procurar]}");// Exibe o segmento
+                            WriteLine($" Quantidade:{quantidades[procurar]}");// Exibe a quantidade
+                            WriteLine($" Preço Unitário:R${precos[procurar]:F2}");// Formata o preço com 2 casas decimais
+                            WriteLine("======================================");
+                        }
+                        else // Se for -1 não achou
+                        {
+                            WriteLine($"AVISO:O produto '{nomeParaProcurar}' NÃO foi encontrado.");
+                        }
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "4":// Calcular valor total do estoque
+                        Clear();
+                        double valorTotal = 0.0;// Variável para acumular o valor total
+                        for (int i = 0; i < nomes.Count; i++)
+                        {
+                            valorTotal += quantidades[i] * precos[i];// Multiplica quantidade pelo preço e acumula
+                        }
+                        WriteLine("======================================");
+                        WriteLine("|     Valor Total do Estoque         |");
+                        WriteLine("======================================");
+                        if (nomes.Count == 0)
+                        {
+                            WriteLine("|  Nenhum produto cadastrado ainda!  |");
+                            WriteLine("======================================");
+                        }
+                        else // se houver produtos cadastrados
+                        {
+                            // Loop normal começando de i = 0
+                            for (int i = 0; i < nomes.Count; i++)
+                            {
+                                WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
+                                WriteLine($" Nome:{nomes[i]}");
+                                WriteLine($" Quantidade:{quantidades[i]}");
+                                WriteLine($" Preço Unitário:R${precos[i]:F2}");
+                                WriteLine("======================================");
+                            }
+                        }
+                        WriteLine($" O valor total do estoque é:R${valorTotal:F2}");// Formata com 2 casas decimais
+                        WriteLine("======================================");
+                        WriteLine();
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "5":// Excluir produto do estoque
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|     Excluir produto do estoque     |");
+                        WriteLine("======================================");
+                        for (int i = 0; i < nomes.Count; i++)
+                        {
+                            WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
+                            WriteLine($" Nome:{nomes[i]}");
+                            WriteLine($" Segmento:{segmentos[i]}");
+                            WriteLine($" Quantidade:{quantidades[i]}");
+                            WriteLine($" Preço Unitário:R${precos[i]:F2}");
+                            WriteLine("=====================================");
+                        }
+                        Write("Digite o nome do produto que deseja excluir:");
+                        string nomeParaExcluir = ReadLine();
+                        int indiceParaExcluir = -1;//começar com um índice que significa não encontrado
+                        for (int i = 0; i < nomes.Count; i++)// Loop para percorrer cada nome na lista
+                        {
+                            // Compara a versão minúscula do nome na lista com a versão minúscula do que foi digitado
+                            if (nomes[i].ToLower() == nomeParaExcluir.ToLower())
+                            {
+                                indiceParaExcluir = i; // Se encontrou guarda o índice
+                                break;     // E para o loop pois já achamos o produto
+                            }
+                        }
+                        if (indiceParaExcluir != -1) // Se o índice for diferente de -1 significa que achou
+                        {
+                            // Remove o produto de todas as listas usando o índice encontrado
+                            nomes.RemoveAt(indiceParaExcluir);
+                            segmentos.RemoveAt(indiceParaExcluir);
+                            quantidades.RemoveAt(indiceParaExcluir);
+                            precos.RemoveAt(indiceParaExcluir);
+                            WriteLine();
+                            WriteLine($"Produto '{nomeParaExcluir}' excluído com sucesso do estoque.");
+                        }
+                        else // Se for -1 não achou
+                        {
+                            WriteLine();
+                            WriteLine($"AVISO:O produto '{nomeParaExcluir}' NÃO foi encontrado.");
+                        }
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "6":// Atualizar produtos
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|         Atualizar Produto          |");
+                        WriteLine("======================================");
+                        for (int i = 0; i < nomes.Count; i++)
+                        {
+                            WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
+                            WriteLine($" Nome:{nomes[i]}");
+                            WriteLine($" Segmento:{segmentos[i]}");
+                            WriteLine($" Quantidade:{quantidades[i]}");
+                            WriteLine($" Preço Unitário:R${precos[i]:F2}");
+                            WriteLine("=====================================");
+                        }
+                        Write("Digite o nome do produto que deseja atualizar:");
+                        string nomeParaAtualizar = ReadLine();
+                        int indiceParaAtualizar = -1;//começar com um índice que significa não encontrado
+                        for (int i = 0; i < nomes.Count; i++)// Loop para percorrer cada nome na lista
+                        {
+                            // Compara a versão minúscula do nome na lista com a versão minúscula do que foi digitado
+                            if (nomes[i].ToLower() == nomeParaAtualizar.ToLower())
+                            {
+                                indiceParaAtualizar = i; // Se encontrou guarda o índice
+                                break;     // E para o loop pois já achamos o produto
+                            }
+                        }
+                        if (indiceParaAtualizar != -1) // Se o índice for diferente de -1 significa que achou
+                        {
+                            Write(" Novo Segmento:");
+                            string novoSegmento = ReadLine();
+                            Write(" Nova Quantidade em Estoque:");
+                            int novaQuantidade = int.Parse(ReadLine());
+                            Write(" Novo Preço Unitário:");
+                            double novoPreco = double.Parse(ReadLine());
+                            // Atualiza as listas com os novos valores
+                            segmentos[indiceParaAtualizar] = novoSegmento;
+                            quantidades[indiceParaAtualizar] = novaQuantidade;
+                            precos[indiceParaAtualizar] = novoPreco;
+                            WriteLine($"Produto '{nomeParaAtualizar}' atualizado com sucesso.");
+                            WriteLine();
+                        }
+                        else // Se for -1 não achou
+                        {
+                            WriteLine($"AVISO:O produto '{nomeParaAtualizar}' NÃO foi encontrado.");
+                        }
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "7":// Sair e salvar
+                        Clear();
+                        List<string> linhasParaSalvar = new List<string>();
+                        for (int i = 0; i < nomes.Count; i++)
+                        {
+                            // Junta todos os dados do produto 'i' em uma única string, separados por '/'
+                            string linha = $"{nomes[i]}/{segmentos[i]}/{quantidades[i]}/{precos[i]}";
+                            linhasParaSalvar.Add(linha);
+                        }
+                        File.WriteAllLines(arquivo, linhasParaSalvar); // Salva a lista de linhas formatadas
+                        WriteLine("======================================================");
+                        WriteLine("| Dados salvos com sucesso no arquivo 'estoque.csv'! |");
+                        WriteLine("======================================================");
+                        WriteLine();
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "8":
+                        Clear();
+                        sair = true;
+                        WriteLine("========================================================");
+                        WriteLine("| Muito obrigado por usar o sistema da Loja TechFuture |");
+                        WriteLine("========================================================");
+                        WriteLine();
+                        WriteLine("=======================================================");
+                        WriteLine("|               Feito por Ygor Eduardo.               |");
+                        WriteLine("=======================================================");
+                        ReadKey();
+                        break;
+                }
+            }
+        }
+    }
+}
