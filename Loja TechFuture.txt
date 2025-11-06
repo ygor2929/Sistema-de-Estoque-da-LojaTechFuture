@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
 using System.IO;
+using System.Diagnostics.Eventing.Reader;
 
 namespace LojaTechFuture
 {
@@ -49,7 +50,7 @@ namespace LojaTechFuture
             }
 
             bool sair = false;// Variável para controlar o loop principal
-            
+
 
             while (!sair)// Loop principal do programa
             {
@@ -63,8 +64,9 @@ namespace LojaTechFuture
                 WriteLine("|4 - Calcular valor total do estoque  |");
                 WriteLine("|5 - Excluir produto do estoque       |");
                 WriteLine("|6 - Atualizar produtos               |");
-                WriteLine("|7 - Salvar                           |");
-                WriteLine("|8 - Sair                             |");
+                WriteLine("|7 - Valor total por produto          |");
+                WriteLine("|8 - Salvar                           |");
+                WriteLine("|9 - Sair                             |");
                 WriteLine("|=====================================|");
                 Write(" Escolha uma opção:");
 
@@ -106,13 +108,14 @@ namespace LojaTechFuture
                             segmentos.Add(segmento);
                             WriteLine("Produto cadastrado com sucesso!");
                         }
+                        WriteLine();
                         WriteLine("Pressione qualquer tecla para voltar para o MENU...");
                         ReadKey();
                         break;
                     case "2":// Listar todos os produtos
                         Clear();
                         WriteLine("======================================");
-                        WriteLine("|        Lista de Produtos           |");
+                        WriteLine("|         Lista de Produtos          |");
                         WriteLine("======================================");
 
                         // verifica se a lista de nomes está vazia
@@ -281,6 +284,8 @@ namespace LojaTechFuture
                         }
                         if (indiceParaAtualizar != -1) // Se o índice for diferente de -1 significa que achou
                         {
+                            Write(" Novo nome:");
+                            string novoNome = ReadLine();
                             Write(" Novo Segmento:");
                             string novoSegmento = ReadLine();
                             Write(" Nova Quantidade em Estoque:");
@@ -288,10 +293,11 @@ namespace LojaTechFuture
                             Write(" Novo Preço Unitário:");
                             double novoPreco = double.Parse(ReadLine());
                             // Atualiza as listas com os novos valores
+                            nomes[indiceParaAtualizar] = novoNome;
                             segmentos[indiceParaAtualizar] = novoSegmento;
                             quantidades[indiceParaAtualizar] = novaQuantidade;
                             precos[indiceParaAtualizar] = novoPreco;
-                            WriteLine($"Produto '{nomeParaAtualizar}' atualizado com sucesso.");
+                            WriteLine($"Produto '{nomeParaAtualizar}' atualizado com sucesso para '{novoNome}'.");
                             WriteLine();
                         }
                         else // Se for -1 não achou
@@ -301,7 +307,26 @@ namespace LojaTechFuture
                         WriteLine("Pressione qualquer tecla para voltar para o MENU...");
                         ReadKey();
                         break;
-                    case "7":// Sair e salvar
+                    case "7":
+                        Clear();
+                        WriteLine("======================================");
+                        WriteLine("|      Valor total por produto       |");
+                        WriteLine("======================================");
+                        for (int i = 0; i < nomes.Count; i++)
+                        {
+                            double result = quantidades[i] * precos[i];
+                            WriteLine($"Produto {i + 1}:"); // (i + 1) para mostrar "Produto 1", "Produto 2"...
+                            WriteLine($" Nome:{nomes[i]}");
+                            WriteLine($" Quantidade:{quantidades[i]}");
+                            WriteLine($" Preço Unitário:R${precos[i]:F2}");
+                            WriteLine($" Quantidade total:{result:F2}");
+                            WriteLine("=====================================");
+                        }
+                        WriteLine();
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadKey();
+                        break;
+                    case "8":// salvar
                         Clear();
                         List<string> linhasParaSalvar = new List<string>();
                         for (int i = 0; i < nomes.Count; i++)
@@ -318,7 +343,7 @@ namespace LojaTechFuture
                         WriteLine("Pressione qualquer tecla para voltar para o MENU...");
                         ReadKey();
                         break;
-                    case "8":
+                    case "9":
                         Clear();
                         sair = true;
                         WriteLine("========================================================");
@@ -330,10 +355,19 @@ namespace LojaTechFuture
                         WriteLine("=======================================================");
                         ReadKey();
                         break;
+                    default:
+                        Clear();
+                        WriteLine("AVISO digite uma opção da lista...");
+                        WriteLine();
+                        WriteLine("Pressione qualquer tecla para voltar para o MENU...");
+                        ReadLine();
+                        break;
                 }
             }
         }
     }
 }
+
+
 
 
