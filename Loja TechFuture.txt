@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
 using System.IO;
-using System.Diagnostics.Eventing.Reader;
+
 
 namespace LojaTechFuture
 {
@@ -74,38 +74,53 @@ namespace LojaTechFuture
 
                 switch (opcao)// Switch para tratar as opções do menu
                 {
-                    case "1":// Cadastrar novo produto
+                    case "1": // Cadastrar novo produto
                         Clear();
                         WriteLine("======================================");
                         WriteLine("|      Cadastro de Novo Produto      |");
                         WriteLine("======================================");
-                        Write(" Nome do Produto:");
-                        string nome = ReadLine();
-                        // inicio da verificação de existência do produto 
-                        if (nomes.Any(n => n.ToLower() == nome.ToLower()))// Usamos .Any() do LINQ para verificar se qualquer item na lista n
+                        Write(" Nome do Produto: ");
+                        string nomeInput = ReadLine();
+                        string nome = nomeInput.Trim(); // <-- 1. Limpa os espaços do início e fim
+
+                        // inicio da verificação de existência do produto 
+                        // 2. Compara as versões limpas (Trim) e minúsculas (ToLower)
+                        if (nomes.Any(n => n.Trim().ToLower() == nome.ToLower()))
                         {
                             // Se entrou aqui o produto já existe
                             WriteLine();
                             WriteLine("=========================================================================");
+                            // Mostra o nome já limpo
                             WriteLine($" AVISO: O produto '{nome}' já está cadastrado no estoque.");
+                            WriteLine("=========================================================================");
+                            WriteLine();
+                        }
+                        // 3. (MELHORIA) Verifica se o nome ficou vazio depois do Trim
+                        else if (string.IsNullOrEmpty(nome))
+                        {
+                            WriteLine();
+                            WriteLine("=========================================================================");
+                            WriteLine(" AVISO: O nome do produto não pode estar vazio.");
                             WriteLine("=========================================================================");
                             WriteLine();
                         }
                         else
                         {
-                            // Se não existe, pede o resto das informações
-                            Write(" Segmento(Ex:Perifericos,Memoria,Placa mãe):");
-                            string segmento = ReadLine();
-                            Write(" Quantidade em Estoque:");
+                            // Se não existe e não é vazio, pede o resto das informações
+                            Write(" Segmento(Ex:Perifericos,Memoria,Placa mãe): ");
+                            string segmentoInput = ReadLine();
+                            string segmento = segmentoInput.Trim(); // <-- 4. Limpa o segmento também
+
+                            Write(" Quantidade em Estoque: ");
                             int quantidade = int.Parse(ReadLine());
-                            Write(" Preço Unitário:");
+                            Write(" Preço Unitário: ");
                             double preco = double.Parse(ReadLine());
 
                             // Adiciona nas listas
-                            nomes.Add(nome);
+                            nomes.Add(nome); // <-- 5. Adiciona o nome já limpo
                             quantidades.Add(quantidade);
                             precos.Add(preco);
-                            segmentos.Add(segmento);
+                            segmentos.Add(segmento); // <-- 6. Adiciona o segmento já limpo
                             WriteLine("Produto cadastrado com sucesso!");
                         }
                         WriteLine();
@@ -140,41 +155,70 @@ namespace LojaTechFuture
                         WriteLine("Pressione qualquer tecla para voltar para o MENU...");
                         ReadKey();
                         break;
-                    case "3":// Buscar produto por nome
+                    case "3":// Buscar produto por nome OU segmento
                         Clear();
                         WriteLine("======================================");
-                        WriteLine("|          Procurar Produto          |");
+                        WriteLine("|        Procurar Produto            |");
                         WriteLine("======================================");
-                        Write("Digite o produto que deseja procurar:");
-                        string nomeParaProcurar = ReadLine();
-                        int procurar = -1;//começar com um índice que significa não encontrado
+                        Write("Digite o NOME ou SEGMENTO que deseja procurar: "); // <-- MUDANÇA 1
+                        string termoDeBuscaInput = ReadLine();
+                        string termoDeBusca = termoDeBuscaInput.Trim().ToLower(); // <-- Limpa e padroniza
 
-                        for (int i = 0; i < nomes.Count; i++)// Loop para percorrer cada nome na lista
+                        // 2. Mudar de "int" para "List<int>" para guardar MÚLTIPLOS resultados
+                        List<int> indicesEncontrados = new List<int>();
+
+                        // (MELHORIA) Tratar busca vazia
+                        if (string.IsNullOrEmpty(termoDeBusca))
                         {
-                            // Compara a versão minúscula do nome na lista com a versão minúscula do que foi digitado
-                            if (nomes[i].ToLower() == nomeParaProcurar.ToLower())
+                            WriteLine();
+                            WriteLine("AVISO: Você precisa digitar algo para procurar.");
+                        }
+                        else
+                        {
+                            // 3. Loop para percorrer CADA item
+                            for (int i = 0; i < nomes.Count; i++)
                             {
-                                procurar = i; // Se encontrou, guarda o índice
-                                break;     // E para o loop, pois já achamos o produto
+                                // Pega os dados da lista, limpa e padroniza (Trim().ToLower())
+                                string nomeNaLista = nomes[i].Trim().ToLower();
+                                string segmentoNaLista = segmentos[i].Trim().ToLower();
+
+                                // 4. A condição agora checa NOME ou SEGMENTO
+                                if (nomeNaLista == termoDeBusca || segmentoNaLista == termoDeBusca)
+                                {
+                                    indicesEncontrados.Add(i); // Adiciona o índice à lista de achados
+                                                               // 5. REMOVEMOS o 'break;' para continuar procurando
+                                }
+                            }
+
+                            // 6. Verifica se a LISTA tem algum item (Count > 0)
+                            if (indicesEncontrados.Count > 0)
+                            {
+                                WriteLine();
+                                WriteLine("======================================");
+                                // Informa quantos foram encontrados
+                                WriteLine($"|    {indicesEncontrados.Count} Produto(s) Encontrado(s)    |");
+                                WriteLine("======================================");
+                                WriteLine();
+
+                                // 7. Loop para exibir TODOS os produtos encontrados
+                                foreach (int indice in indicesEncontrados)
+                                {
+                                    WriteLine($" Nome: {nomes[indice]}");
+                                    WriteLine($" Segmento: {segmentos[indice]}");
+                                    WriteLine($" Quantidade: {quantidades[indice]}");
+                                    WriteLine($" Preço Unitário: R${precos[indice]:F2}");
+                                    WriteLine("--------------------------------------"); // Separador
+                                }
+                            }
+                            else // Se a lista estiver vazia
+                            {
+                                WriteLine();
+                                // Mostra o termo de busca original que o usuário digitou
+                                WriteLine($"AVISO: Nenhum produto foi encontrado com o termo '{termoDeBuscaInput}'.");
                             }
                         }
 
-                        if (procurar != -1) // Se o índice for diferente de -1 significa que achou
-                        {
-                            WriteLine();
-                            WriteLine("======================================");
-                            WriteLine("|       Produto encontrado           |");
-                            WriteLine("======================================");
-                            WriteLine($" Nome:{nomes[procurar]}");// Exibe o nome
-                            WriteLine($" Segmento:{segmentos[procurar]}");// Exibe o segmento
-                            WriteLine($" Quantidade:{quantidades[procurar]}");// Exibe a quantidade
-                            WriteLine($" Preço Unitário:R${precos[procurar]:F2}");// Formata o preço com 2 casas decimais
-                            WriteLine("======================================");
-                        }
-                        else // Se for -1 não achou
-                        {
-                            WriteLine($"AVISO:O produto '{nomeParaProcurar}' NÃO foi encontrado.");
-                        }
+                        WriteLine();
                         WriteLine("Pressione qualquer tecla para voltar para o MENU...");
                         ReadKey();
                         break;
@@ -367,7 +411,3 @@ namespace LojaTechFuture
         }
     }
 }
-
-
-
-
